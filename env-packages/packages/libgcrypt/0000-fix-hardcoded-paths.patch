@@ -1,0 +1,114 @@
+diff -uNr libgcrypt-1.8.5/random/random.c libgcrypt-1.8.5.mod/random/random.c
+--- libgcrypt-1.8.5/random/random.c	2017-11-23 20:16:58.000000000 +0200
++++ libgcrypt-1.8.5.mod/random/random.c	2019-12-17 01:57:39.834933427 +0200
+@@ -39,10 +39,6 @@
+ #include "rand-internal.h"
+ #include "cipher.h"         /* For _gcry_sha1_hash_buffer().  */
+ 
+-/* The name of a file used to globally configure the RNG. */
+-#define RANDOM_CONF_FILE "/etc/gcrypt/random.conf"
+-
+-
+ /* If not NULL a progress function called from certain places and the
+    opaque value passed along.  Registered by
+    _gcry_register_random_progress (). */
+@@ -102,7 +98,7 @@
+ unsigned int
+ _gcry_random_read_conf (void)
+ {
+-  const char *fname = RANDOM_CONF_FILE;
++  char *fname = android_dynamic_path_prefix("/gcrypt_random.conf");
+   FILE *fp;
+   char buffer[256];
+   char *p, *pend;
+@@ -110,8 +106,10 @@
+   unsigned int result = 0;
+ 
+   fp = fopen (fname, "r");
+-  if (!fp)
++  if (!fp) {
++    free(fname);
+     return result;
++  }
+ 
+   for (;;)
+     {
+@@ -126,6 +124,7 @@
+ #endif /*HAVE_SYSLOG*/
+             }
+           fclose (fp);
++          free(fname);
+           return result;
+         }
+       lnr++;
+@@ -154,6 +153,8 @@
+ #endif /*HAVE_SYSLOG*/
+         }
+     }
++
++    free(fname);
+ }
+ 
+ 
+diff -uNr libgcrypt-1.8.5/src/fips.c libgcrypt-1.8.5.mod/src/fips.c
+--- libgcrypt-1.8.5/src/fips.c	2017-11-23 20:16:58.000000000 +0200
++++ libgcrypt-1.8.5.mod/src/fips.c	2019-12-17 02:04:14.650904571 +0200
+@@ -36,7 +36,7 @@
+ 
+ 
+ /* The name of the file used to force libgcrypt into fips mode. */
+-#define FIPS_FORCE_FILE "/etc/gcrypt/fips_enabled"
++#define FIPS_FORCE_FILE "/data/data/alpine.term/files/run/gcrypt_fips_enabled"
+ 
+ 
+ /* The states of the finite state machine used in fips mode.  */
+diff -uNr libgcrypt-1.8.5/src/hwfeatures.c libgcrypt-1.8.5.mod/src/hwfeatures.c
+--- libgcrypt-1.8.5/src/hwfeatures.c	2017-11-23 20:16:58.000000000 +0200
++++ libgcrypt-1.8.5.mod/src/hwfeatures.c	2019-12-17 01:58:07.282071420 +0200
+@@ -32,9 +32,6 @@
+ #include "g10lib.h"
+ #include "hwf-common.h"
+ 
+-/* The name of a file used to globally disable selected features. */
+-#define HWF_DENY_FILE "/etc/gcrypt/hwf.deny"
+-
+ /* A table to map hardware features to a string.  */
+ static struct
+ {
+@@ -140,15 +137,17 @@
+ static void
+ parse_hwf_deny_file (void)
+ {
+-  const char *fname = HWF_DENY_FILE;
++  char *fname = android_dynamic_path_prefix("/gcrypt_hwf.deny");
+   FILE *fp;
+   char buffer[256];
+   char *p, *pend;
+   int lnr = 0;
+ 
+   fp = fopen (fname, "r");
+-  if (!fp)
++  if (!fp) {
++    free(fname);
+     return;
++  }
+ 
+   for (;;)
+     {
+@@ -163,6 +162,7 @@
+ #endif /*HAVE_SYSLOG*/
+             }
+           fclose (fp);
++          free(fname);
+           return;
+         }
+       lnr++;
+@@ -187,6 +187,8 @@
+ #endif /*HAVE_SYSLOG*/
+         }
+     }
++
++    free(fname);
+ }
+ 
+ 

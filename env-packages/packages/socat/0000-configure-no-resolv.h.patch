@@ -1,0 +1,12 @@
+diff -uNr socat-1.7.3.3/configure socat-1.7.3.3.mod/configure
+--- socat-1.7.3.3/configure	2019-04-05 23:10:58.000000000 +0300
++++ socat-1.7.3.3.mod/configure	2019-11-19 18:38:20.683695824 +0200
+@@ -3944,7 +3944,7 @@
+ done
+ 
+ 
+-for ac_header in sys/types.h netinet/in.h arpa/nameser.h netdb.h resolv.h
++for ac_header in sys/types.h netinet/in.h arpa/nameser.h netdb.h
+ do :
+   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ ac_fn_c_check_header_compile "$LINENO" "$ac_header" "$as_ac_Header" "#ifdef HAVE_SYS_TYPES_H

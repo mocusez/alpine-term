@@ -1,0 +1,29 @@
+diff -uNr curl-7.67.0/lib/url.c curl-7.67.0.mod/lib/url.c
+--- curl-7.67.0/lib/url.c	2019-11-04 14:59:17.000000000 +0200
++++ curl-7.67.0.mod/lib/url.c	2019-12-15 17:09:28.550772468 +0200
+@@ -514,14 +514,21 @@
+    */
+   if(Curl_ssl_backend() != CURLSSLBACKEND_SCHANNEL) {
+ #if defined(CURL_CA_BUNDLE)
+-    result = Curl_setstropt(&set->str[STRING_SSL_CAFILE_ORIG], CURL_CA_BUNDLE);
+-    if(result)
++    char *prefixed_ca_bundle = android_dynamic_path_prefix("/ca-certificates.pem");
++    result = Curl_setstropt(&set->str[STRING_SSL_CAFILE_ORIG], prefixed_ca_bundle);
++    if(result) {
++      free(prefixed_ca_bundle);
+       return result;
++    }
+ 
+     result = Curl_setstropt(&set->str[STRING_SSL_CAFILE_PROXY],
+-                            CURL_CA_BUNDLE);
+-    if(result)
++                            prefixed_ca_bundle);
++    if(result) {
++      free(prefixed_ca_bundle);
+       return result;
++    }
++
++    free(prefixed_ca_bundle);
+ #endif
+ #if defined(CURL_CA_PATH)
+     result = Curl_setstropt(&set->str[STRING_SSL_CAPATH_ORIG], CURL_CA_PATH);

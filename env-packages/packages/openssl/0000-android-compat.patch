@@ -1,0 +1,74 @@
+diff -uNr openssl-1.1.1d/Configurations/15-android.conf openssl-1.1.1d.mod/Configurations/15-android.conf
+--- openssl-1.1.1d/Configurations/15-android.conf	2019-09-10 16:13:07.000000000 +0300
++++ openssl-1.1.1d.mod/Configurations/15-android.conf	2019-12-15 16:26:31.794233178 +0200
+@@ -164,10 +164,10 @@
+         # systems are perfectly capable of executing binaries targeting
+         # Froyo. Keep in mind that in the nutshell Android builds are
+         # about JNI, i.e. shared libraries, not applications.
+-        cflags           => add(sub { android_ndk()->{cflags} }),
+-        cppflags         => add(sub { android_ndk()->{cppflags} }),
+-        cxxflags         => add(sub { android_ndk()->{cflags} }),
+-        bn_ops           => sub { android_ndk()->{bn_ops} },
++        #cflags           => add(sub { android_ndk()->{cflags} }),
++        #cppflags         => add(sub { android_ndk()->{cppflags} }),
++        #cxxflags         => add(sub { android_ndk()->{cflags} }),
++        #bn_ops           => sub { android_ndk()->{bn_ops} },
+         bin_cflags       => "-pie",
+         enable           => [ ],
+     },
+@@ -200,11 +200,11 @@
+         # Newer NDK versions reportedly require additional -latomic.
+         #
+         inherit_from     => [ "android", asm("armv4_asm") ],
+-        bn_ops           => add("RC4_CHAR"),
++        bn_ops           => "BN_LLONG RC4_CHAR",
+     },
+     "android-arm64" => {
+         inherit_from     => [ "android", asm("aarch64_asm") ],
+-        bn_ops           => add("RC4_CHAR"),
++        bn_ops           => "SIXTY_FOUR_BIT_LONG RC4_CHAR",
+         perlasm_scheme   => "linux64",
+     },
+ 
+@@ -231,12 +231,12 @@
+     "android-x86" => {
+         inherit_from     => [ "android", asm("x86_asm") ],
+         CFLAGS           => add(picker(release => "-fomit-frame-pointer")),
+-        bn_ops           => add("RC4_INT"),
++        bn_ops           => "BN_LLONG RC4_INT",
+         perlasm_scheme   => "android",
+     },
+     "android-x86_64" => {
+         inherit_from     => [ "android", asm("x86_64_asm") ],
+-        bn_ops           => add("RC4_INT"),
++        bn_ops           => "SIXTY_FOUR_BIT_LONG RC4_INT",
+         perlasm_scheme   => "elf",
+     },
+ 
+diff -uNr openssl-1.1.1d/crypto/armcap.c openssl-1.1.1d.mod/crypto/armcap.c
+--- openssl-1.1.1d/crypto/armcap.c	2019-09-10 16:13:07.000000000 +0300
++++ openssl-1.1.1d.mod/crypto/armcap.c	2019-12-15 16:26:58.713341880 +0200
+@@ -63,12 +63,8 @@
+ void OPENSSL_cpuid_setup(void) __attribute__ ((constructor));
+ # endif
+ 
+-# if defined(__GLIBC__) && defined(__GLIBC_PREREQ)
+-#  if __GLIBC_PREREQ(2, 16)
+ #   include <sys/auxv.h>
+ #   define OSSL_IMPLEMENT_GETAUXVAL
+-#  endif
+-# endif
+ 
+ /*
+  * ARM puts the feature bits for Crypto Extensions in AT_HWCAP2, whereas
+diff -u -r ../openssl-1.1.1g/apps/ocsp.c ./apps/ocsp.c
+--- ../openssl-1.1.1g/apps/ocsp.c	2020-04-21 12:22:39.000000000 +0000
++++ ./apps/ocsp.c	2020-04-28 22:42:57.312189000 +0000
+@@ -48,6 +48,7 @@
+ #endif
+ 
+ #if !defined(NO_FORK) && !defined(OPENSSL_NO_SOCK) \
++     && !defined(__ANDROID__) \
+      && !defined(OPENSSL_NO_POSIX_IO)
+ # define OCSP_DAEMON
+ # include <sys/types.h>

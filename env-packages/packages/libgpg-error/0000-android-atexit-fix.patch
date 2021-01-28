@@ -1,0 +1,15 @@
+diff -uNr libgpg-error-1.36/src/estream.c libgpg-error-1.36.mod/src/estream.c
+--- libgpg-error-1.36/src/estream.c	2019-01-04 13:40:47.000000000 +0200
++++ libgpg-error-1.36.mod/src/estream.c	2019-12-17 01:25:43.995660945 +0200
+@@ -511,7 +511,11 @@
+ {
+   static int initialized;
+ 
++#ifdef __ANDROID__
++  if (initialized < 2)
++#else
+   if (!initialized)
++#endif
+     {
+       initialized = 1;
+       atexit (do_deinit);

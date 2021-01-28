@@ -1,0 +1,467 @@
+% Alpine Term
+
+Alpine Term, aka Alpine Linux Terminal, is a virtual machine running the
+[Alpine Linux](https://alpinelinux.org) — a security-oriented, lightweight
+Linux distribution based on musl libc and busybox.
+
+Application does not use KVM and should work on any rootless device running
+Android 7.0 or higher. Here are the recommended minimal system properties:
+
+ - 2 GHz CPU
+ - 2 GB RAM
+ - 6 GB disk space on internal storage
+
+If your hardware properties do not meet these ones, you may observe issues
+during installation or at runtime.
+
+This application is general-purpose and you are limited only by environment
+isolation and performance.
+
+***
+
+## User Guide
+
+Table of contents:
+
+ - [User interface](#user-interface)
+   - [Terminal](#terminal)
+   - [Context menu](#context-menu)
+   - [Navigation drawer](#navigation-drawer)
+   - [Notification](#notification)
+   - [Extra keys row](#extra-keys-row)
+   - [Text input field](#text-input-field)
+ - [Keyboard](#keyboard)
+   - [Touch keyboard shortcuts](#touch-keyboard-shortcuts)
+   - [Hardware keyboard shortcuts](#hardware-keyboard-shortcuts)
+ - [Getting started](#getting-started)
+   - [QEMU monitor](#qemu-monitor)
+   - [Shell](#shell)
+   - [Using custom disk images](#using-custom-disk-images)
+   - [Sharing files between host and VM](#sharing-files-between-host-and-vm)
+   - [Shutting down the VM](#shutting-down-the-vm)
+
+***
+
+### User interface
+#### Terminal
+
+The application emulates a subset of the X Window System (xterm) terminal
+with TrueColor support. Its capabilities should be enough for most of the
+available command line programs.
+
+<span style="display:block;text-align:center">
+  <img alt="QEMU session screenshot" src="img/qemu_session.png" style="width:90%;max-width:700px;">
+</span>
+
+As a connection to the virtual machine is done over serial line, a proper
+terminal window handshake is not possible. As a result, the virtual machine
+is not aware of the current state of the terminal emulator. If there is a
+window size mismatch between terminal emulator and virtual machine, you may
+observe visual glitches such as displaced or disappeared text when using
+certain programs.
+
+Use utility 'resize' to make sure that the console size matches the size
+of the screen. If the terminal was messed up, use the utility 'reset'
+which will clean screen and reset the terminal to initial state.
+
+The terminal is sensitive to taps and gestures. For example, pinch-zooming
+will change the font size and short tap will act as a mouse click. Long
+tap will toggle a text selection and the [context menu](#context-menu).
+By swiping rightwards, a [navigation drawer](#navigation-drawer) will be
+revealed.
+
+#### Context menu
+
+The context menu can be shown by long pressing anywhere on the
+terminal. It provides menu entries for:
+
+ - Opening VNC connection. Available only if [RealVNC Viewer](https://play.google.com/store/apps/details?id=com.realvnc.viewer.android)
+   is installed.
+ - Copying or pasting text from clipboard.
+ - Showing this help page.
+ - Opening URL selector dialog.
+ - Sharing text from the terminal to other apps.
+ - Resetting the terminal state if it got messed up.
+ - Changing a color scheme of the terminal.
+ - Check box to control whether bell characters should be ignored.
+
+#### Navigation drawer
+
+The navigation drawer is revealed by swiping inwards from the left
+part of screen.
+
+<span style="display:block;text-align:center">
+  <img alt="Navigation drawer screenshot" src="img/app_drawer.png" style="width:90%;max-width:700px;">
+</span>
+
+It contains few additional elements:
+
+ 1. The list of sessions: the first one is [QEMU monitor](#qemu-monitor)
+    and the last four sessions are serial consoles (ttyS1-ttyS3). Click
+    on a session to open.
+ 2. The button to toggle visibility of a touch keyboard.
+    <br>Long press will toggle the [extra keys row](#extra-keys-row) (3).
+
+#### Notification
+
+While Alpine Term is running, it displays a notification which can be
+expanded by a pinch-zooming or a single-finger glide gestures to expose
+the action for toggling wake lock to prevent device's CPU going into
+sleep mode.
+
+<span style="display:block;text-align:center">
+  <img alt="Notification screenshot" src="img/app_notification.png" style="width:90%;max-width:700px;">
+</span>
+
+Clicking on the notification will open the current terminal session.
+
+#### Extra keys row
+
+<span style="display:block;text-align:center">
+  <img alt="Extra keys row screenshot" src="img/extra_keys_row.png" style="width:90%;max-width:700px;">
+</span>
+
+Alpine Term provides a row, which contains some keys frequently used
+to interact with the command line. It can be toggled by either a long
+press on the keyboard button located on the [drawer](#navigation-drawer)
+or by **Volume Up+Q** and **Volume Up+K** key combinations.
+
+Swiping upwards certain keys will expose the alternate ones. Particularly:
+
+ - `-` will show a key for `_`
+ - `|` will show a key for `&`
+
+Swiping the extra keys row leftwards will reveal the [text input field](#text-input-field).
+
+#### Text input field
+
+<span style="display:block;text-align:center">
+  <img alt="Text input field screenshot" src="img/alt_text_input.png" style="width:90%;max-width:700px;">
+</span>
+
+The terminal does not support the advanced features of the touch
+keyboards like a predictive input or swipe typing. As a workaround,
+the application provides a special text input field where all these
+features work correctly.
+
+***
+
+### Keyboard
+
+#### Touch keyboard shortcuts
+
+**Volume Down** button emulates **Ctrl** key which can be combined with
+others to request a special action from command line tools. Common key
+combinations are:
+
+ - **Ctrl+A** → Move cursor to the beginning of line
+ - **Ctrl+C** → Interrupt the current process with SIGINT
+ - **Ctrl+D** → Send end-of-file to the standard input
+ - **Ctrl+E** → Move cursor to the end of line
+ - **Ctrl+K** → Delete text from cursor to the end of line
+ - **Ctrl+L** → Clear the terminal
+ - **Ctrl+Z** → Suspend the current process with SIGTSTP
+
+**Volume Up** key is used to produce certain input on the following
+combinations:
+
+ - **Volume Up+.** → Ctrl+\\ (SIGQUIT)
+ - **Volume Up+1** → F1 (and **Volume Up+2** → F2, etc)
+ - **Volume Up+0** → F10
+ - **Volume Up+A** → Left arrow key
+ - **Volume Up+B** → Alt+B, back a word (if using readline)
+ - **Volume Up+D** → Right arrow key
+ - **Volume Up+E** → Escape key
+ - **Volume Up+F** → Alt+F, forward a word (if using readline)
+ - **Volume Up+H** → ~ (the tilde character)
+ - **Volume Up+K** → Alias for **Volume Up+Q**
+ - **Volume Up+L** → | (the pipe character)
+ - **Volume Up+N** → Page Down
+ - **Volume Up+P** → Page Up
+ - **Volume Up+Q** → Toggle extra keys row
+ - **Volume Up+S** → Down arrow key
+ - **Volume Up+T** → Tab key
+ - **Volume Up+U** → _ (the underscore character)
+ - **Volume Up+V** → Show the volume control
+ - **Volume Up+W** → Up arrow key
+ - **Volume Up+X** → Alt+X
+
+Note that **Volume Up** does not represent an **Alt** key even though
+it is able to emulate some its combinations.
+
+#### Hardware keyboard shortcuts
+
+These keys in combination with **Ctrl+Alt** will trigger certain
+actions of Alpine Term when using a hardware keyboard:
+
+ - **+/-** → Adjust text size
+ - **1-5** → Go to the session with specified number
+ - **M** → Show the [context menu](#context-menu)
+ - **N** → Switch to the next session
+ - **P** → Switch to the previous session
+ - **U** → Open URL selector
+ - **V** → Paste clipboard
+ - **Left arrow** → Close drawer
+ - **Right arrow** → Open drawer
+ - **Down arrow** → Alias for **N**
+ - **Up arrow** → Alias for **P**
+
+***
+
+### Getting started
+#### QEMU monitor
+
+QEMU monitor is instrument for controlling the state of the virtual machine.
+Its console can be accessed through the first tab on the [navigation drawer](#navigation-drawer).
+
+<span style="display:block;text-align:center">
+  <img alt="QEMU monitor screenshot" src="img/qemu_monitor.png" style="width:90%;max-width:700px;">
+</span>
+
+##### List of common monitor commands
+
+|Command                                          | Description                     |
+|:------------------------------------------------|:--------------------------------|
+|`help`                                           |Show a full list of available commands. Not all of them are applicable to Alpine Term QEMU instance.|
+|`help <command>`                                 |Show help for a specific command.  |
+|`stop`                                           |Pause emulation.                 |
+|`cont`                                           |Resume emulation.                |
+|`quit`                                           |Terminate QEMU instance.         |
+|`sendkey <key>`                                  |Send key (combination) to the virtual machine. For example: 'ctrl-alt-delete'.|
+|`system_powerdown`                               |Send ACPI request to the operating system to shut down.|
+|`system_reset`                                   |Reset the system (reboot).       |
+|`savevm <name>`                                  |Save a VM snapshot with the specified name. Unmount /mnt/share before using this command.|
+|`loadvm <name>`                                  |Load a VM snapshot with the specified name.|
+|`delvm <name>`                                   |Delete a VM snapshot with the specified name.|
+|`set_link vmnic0 off`                            |Disable network access.          |
+|`set_link vmnic0 on`                             |Enable network access.           |
+|`hostfwd_add tcp::10022-:22`                     |Redirect TCP connections from 0.0.0.0:10022 on host to guest port 22.|
+|`hostfwd_remove tcp::10022`                      |Remove port forwarding for 0.0.0.0:10022.|
+|`nbd_server_add [-w] <dev id> [name]`            |Export a block device with specified ID over NBD. Optionally enable write access (-w) and assign a name.|
+|`nbd_server_remove [-f] <name>`                  |Remove NBD export with the specified name.|
+|`nbd_server_start 0.0.0.0:8500`                  |Start the NBD server listening on 0.0.0.0:8500.|
+|`nbd_server_stop`                                |Stop the NBD server.                 |
+|`screendump <file.ppm>`                          |Create a PPM screenshot of the display and save to the specified file.|
+|`change vnc 127.0.0.1:1`                         |Start the VNC server on 127.0.0.1:5901.|
+|`change vnc 127.0.0.1:1,password`                |Start the VNC server on 127.0.0.1:5901 with password authentication.|
+|`change vnc none`                                |Stop the VNC server.             |
+|`change vnc password`                            |Set the VNC password.            |
+|`dump-guest-memory <file>`                       |Dump memory of the virtual machine into file.|
+|`gdbserver tcp::4444`                            |Start the GDB server listening on TCP 0.0.0.0:4444.|
+|`gdbserver none`                                 |Stop the GDB server.             |
+|`info block`                                     |Show available block devices.    |
+|`info block-jobs`                                |Show information about pending jobs for block devices.|
+|`info pci`                                       |Show information about PCI devices.|
+|`info registers`                                 |Show current values of CPU registers.|
+|`info snapshots`                                 |Show available VM snapshots.     |
+|`info usernet`                                   |Show information about port forwardings and network connections.|
+|`info vnc`                                       |Show information about VNC server state.|
+
+QEMU monitor console supports TAB completion. Use this feature to get hints on
+command arguments.
+
+##### List of device IDs
+
+|Device                   | ID        |
+|:------------------------|:----------|
+|Primary CD-ROM block     |`cd0`      |
+|Primary CD-ROM device    |`scsi-cd0` |
+|Secondary CD-ROM block   |`cd1`      |
+|Secondary CD-ROM device  |`scsi-cd1` |
+|Primary HDD block        |`hd0`      |
+|Primary HDD device       |`scsi-hd0` |
+|Secondary HDD block      |`hd1`      |
+|Secondary HDD device     |`scsi-hd1` |
+|Network interface card   |`vmnic0`   |
+
+##### Limiting RAM usage
+
+You can limit RAM usage by configuring VirtIO Balloon device through QEMU
+monitor. See an example below how to limit memory usage to 350 MiB:
+
+```
+balloon 350
+```
+
+If guest operating system uses less memory than specified value, QEMU will
+de-allocate host RAM and update visible memory size for the virtual machine.
+In other cases virtual machine may not release used memory or do that
+partially.
+
+Some kernels or custom operating systems may not support this feature.
+
+##### Backing up the HDD image
+
+Use QEMU monitor to back up the operating system image. You can do this by
+executing the next command:
+
+```
+drive_backup -f -c hd0 /sdcard/backup.qcow2 qcow2
+```
+
+This command will copy the data into the new compressed (option '-c') QCOW2
+image ready for reuse. You can continue to use the virtual machine during
+the backup process. Progress can be tracked by this command:
+
+```
+info block-jobs
+```
+
+After finishing you can get your image in the Alpine Term private directory
+on [shared storage](#sharing-files-between-host-and-vm).
+
+##### Restoring the HDD image
+
+The restoring operation is quite complicated as you cannot have direct
+access to the runtime directory of Alpine Term. However, you can use trick
+with the 'drive_backup' command to overwrite the original HDD image.
+
+~~~~ {.numberLines startFrom="1"}
+# First, reset and stop the virtual machine:
+system_reset
+stop
+
+# Check the path where the original image is being stored:
+info block
+
+# Here it will be assumed that its path is
+# /data/user/0/alpine.term/files/run/alpine-linux-hdd.qcow2
+
+# Remove the primary HDD:
+drive_del hd0
+device_del scsi-hd0
+
+# Now you can temporarily add your backup image as a block device:
+drive_add 0 if=none,id=temphd0,format=qcow2,file=/sdcard/backup.qcow2
+
+# And overwrite the original HDD image:
+drive_backup -f -c temphd0 /data/user/0/alpine.term/files/run/alpine-linux-hdd.qcow2 qcow2
+~~~~
+
+Wait until job finishes (command 'info block-jobs') and then restart Alpine Term.
+
+#### Shell
+##### List of common shell commands
+
+|Command                            |Description                   |
+|:----------------------------------|:-----------------------------|
+|`apk add <pkg>`                    |Install the specified package.|
+|`apk del <pkg>`                    |Uninstall the specified package.|
+|`apk upgrade`                      |Upgrade the installed packages.|
+|`apk info`                         |List the installed packages.  |
+|`cat <file>`                       |Print content of the specified file.|
+|`cd <dir>`                         |Navigate to the specified directory.|
+|`chgrp <group> <path>`             |Change the group of the specified file or directory.     |
+|`chmod <mode> <path>`              |Change access mode of the specified file or directory.|
+|`chown <ownership> <path>`         |Change ownership of the specified file or directory.|
+|`cp <src> <dst>`                   |Copy file from the specified source to destination.|
+|`date`                             |Print the current date and time.|
+|`df -h`                            |Show the current disk space usage.|
+|`dmesg`                            |Print the kernel log.         |
+|`file <path>`                      |Detect a type of the specified file.|
+|`free -h`                          |Show RAM usage.               |
+|`grep <pattern> <file>`            |Find occurrences of the specified pattern in a file.|
+|`gunzip <file.gz>`                 |Decompress the given file.    |
+|`gzip <file>`                      |Compress the given file.      |
+|`hostname`                         |Print the current system host name.|
+|`id`                               |Print the user and group IDs associated with current user.|
+|`ifconfig`                         |Show the information about active network interfaces.|
+|`kill -9 <pid>`                    |Kill the process with specified PID.|
+|`ln -s <src> <dest>`               |Create a symbolic link between the specified source and destination.|
+|`ls`                               |List files in the current directory.|
+|`ls <dir>`                         |List files in the specified directory.|
+|`man <command>`                    |Open manual for the specified command.|
+|`mkdir -p <path>`                  |Create directory at the specified path.|
+|`mv <src> <dst>`                   |Move file or directory from the specified source to destination. Can be used to rename files.|
+|`nano <file.txt>`                  |Edit specified text file with Nano editor.|
+|`netstat -tun`                     |Show the active network connections.|
+|`netstat -tuln`                    |Show the listening sockets (servers).|
+|`poweroff`                         |Shut down the machine.        |
+|`ps aux`                           |Show all system processes.    |
+|`pwd`                              |Print the path of the current working directory.|
+|`reboot`                           |Reboot the operating system.  |
+|`rm -rf <path>`                    |Delete the specified file or directory.|
+|`reset`                            |Reset the terminal.           |
+|`resize`                           |Resize the console.           |
+|`tar cf file.tar <dir>`            |Create a tar archive of the specified directory.|
+|`tar xf file.tar`                  |Extract the specified tar archive.|
+|`uname -a`                         |Show system host name, kernel version and CPU architecture.|
+|`wget <url>`                       |Download file from the specified URL.|
+
+For more details about shell usage and scripting you can read the
+[Advanced Bash-Scripting Guide](doc/bash-advanced.html). Although
+this guide is for Bash shell, most of the tips apply to other shells
+as well.
+
+Also read the [Alpine Linux Wiki](https://wiki.alpinelinux.org) for details
+about administering Alpine systems.
+
+#### Using custom disk images
+
+You can have additional CD-ROM or HDD image. To do so place your ISO or
+QCOW2 file on [shared storage](#sharing-files-between-host-and-vm) into
+this directory:
+
+~~~~ {.numberLines startFrom="1"}
+/storage/self/primary/Android/data/alpine.term/files
+~~~~
+
+Ensure that image file names are 'cdrom.iso' for CD-ROM and 'hdd.qcow2'
+for HDD respectively. Note that this way allows you to have only one
+image of each type.
+
+*This method is deprecated on Android 11+ due to storage changes.*
+
+Another variant how to add a disk image would be the use of the monitor
+console. Here is an example of how to add a custom CD-ROM image:
+
+~~~~ {.numberLines startFrom="1"}
+# Regular way with just ISO file.
+drive_add 0 if=none,media=cdrom,id=cd1,file=/sdcard/mycd.iso
+
+# Or remote image accessible over HTTP:
+drive_add 0 if=none,media=cdrom,id=cd1,file=https://example.com/cdrom.iso
+
+# NBD also works:
+drive_add 0 if=none,media=cdrom,id=cd1,file=nbd://192.168.1.10:1024/cdrom
+
+# Once block device is added, create a CD-ROM device:
+device_add scsi-cd,id=scsi-cd1,drive=cd1
+~~~~
+
+#### Sharing files between host and VM
+
+The Alpine Term application maintains a directory on Android storage for
+sharing files between host and virtual machine. Inside the virtual machine
+this directory is mounted at '/mnt/shared' by `fstab` and on the host it
+is usually accessible at
+
+~~~~ {.numberLines startFrom="1"}
+/storage/self/primary
+~~~~
+
+Sharing files may not be possible through this way if host shared storage
+is not available. That are rare cases however, like when shared storage is
+actually removable SD-CARD which was ejected.
+
+**Warning**: if you want to uninstall the Alpine Term, do not forget
+to move files from the host shared directory to a different place.
+Otherwise, all its data will be lost.
+
+#### Shutting down the VM
+
+You can shut down the virtual machine and exit application with these
+ways:
+
+ - Executing command 'quit' in QEMU monitor for immediate exit. May
+   leave HDD file system in an inconsistent state.
+ - Executing command 'system_powerdown' in QEMU monitor to initiate
+   OS shut down through ACPI.
+ - Executing command 'poweroff' in OS shell.
+
+If application got frozen and does not respond for some reason, you
+will need to force stop it through Android OS settings.
+
+***
+
+<p style="text-align:center;"><font size="1dp"><i>Alpine Term by Leonid Pliushch</i></font></p>
