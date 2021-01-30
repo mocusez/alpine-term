@@ -1,7 +1,7 @@
 # Build with:
-#  docker build -t xeffyr/alpine-term-env-builder .
+#  docker build -t xeffyr/android-native-devenv .
 # Push to docker hub with:
-#  docker push xeffyr/alpine-term-env-builder
+#  docker push xeffyr/android-native-devenv
 FROM ubuntu:20.04
 
 # Fix locale to avoid warnings:

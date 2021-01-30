@@ -3,8 +3,8 @@ set -e -u
 
 USER="builder"
 HOME="/home/builder"
-IMAGE_NAME="xeffyr/alpine-term-env-builder"
-CONTAINER_NAME="alpine-term-env-builder"
+IMAGE_NAME="xeffyr/android-native-devenv"
+CONTAINER_NAME="android-native-devenv"
 
 if [ `uname` = Darwin ]; then
     # Workaround for mac readlink not supporting -f.
