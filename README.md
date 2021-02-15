@@ -1,8 +1,6 @@
 # Alpine Term
 
-> Basically a text-based frontend to QEMU on Android OS.
-
-*Telegram channel: https://t.me/alpineterm*
+> NOTE: Replaced by vShell application.
 
 Alpine Term, aka Alpine Linux Terminal, is a virtual machine running the
 [Alpine Linux](https://alpinelinux.org) — a security-oriented, lightweight
