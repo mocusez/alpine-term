@@ -1,6 +1,7 @@
 # Alpine Term
 
-> NOTE: Replaced by vShell application.
+**DISCONTINUED! Application has been replaced by similar project — vShell,
+which is available in repositories under my account.**
 
 Alpine Term, aka Alpine Linux Terminal, is a virtual machine running the
 [Alpine Linux](https://alpinelinux.org) — a security-oriented, lightweight
